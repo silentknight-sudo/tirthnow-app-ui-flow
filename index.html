@@ -1,0 +1,134 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tirth Now Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Mukta:wght@500;700&display=swap">
+<style>
+/* Layout: flow rail left, phone stage centre, step notes right; stacks on phones */
+:root{
+  --bg:#FBF4EA; --panel:#FFFFFF; --fg:#22180F; --muted:#76665A; --line:#EADCCB;
+  --saffron:#F26B1D; --saffron-soft:#FDE6D6; --navy:#1B2A5C; --gold:#F4B02A; --frame:#1C1A1F;
+  --display:'Mukta','Poppins',system-ui,sans-serif; --body:'Poppins',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17130F;--panel:#221C16;--fg:#F6ECE1;--muted:#B5A595;--line:#3A3027;--saffron-soft:#3E2414;--navy:#AFC0F5;--frame:#000;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17130F;--panel:#221C16;--fg:#F6ECE1;--muted:#B5A595;--line:#3A3027;--saffron-soft:#3E2414;--navy:#AFC0F5;--frame:#000;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);margin:0;padding:24px 16px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:270px minmax(0,1fr) 280px;gap:28px;align-items:start}
+header{max-width:1180px;margin:0 auto 22px;display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;justify-content:space-between}
+h1{font-family:var(--display);font-size:30px;margin:0;color:var(--navy);line-height:1.1}
+h1 span{color:var(--saffron)}
+.tag{color:var(--muted);font-size:13px}
+.rail,.notes{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.rail h2,.notes h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:2px 4px 10px;font-weight:600}
+.flow{display:block;width:100%;text-align:left;background:none;border:0;border-radius:10px;padding:10px;cursor:pointer;color:var(--fg);font:inherit}
+.flow:hover{background:var(--saffron-soft)}
+.flow.on{background:var(--saffron);color:#fff}
+.flow b{display:block;font-size:14px;font-weight:600}
+.flow small{font-size:12px;opacity:.8}
+.stage{display:flex;flex-direction:column;align-items:center;gap:14px;min-width:0}
+.phone{width:min(360px,100%);background:var(--frame);border-radius:42px;padding:12px;box-shadow:0 30px 60px -20px rgba(80,40,10,.35)}
+.screen{position:relative;height:720px;max-height:72vh;border-radius:32px;overflow-y:auto;overflow-x:hidden;background:#fff;cursor:pointer;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.screen img{display:block;width:100%}
+.notch{position:sticky;top:0;height:0;z-index:2;display:flex;justify-content:center}
+.notch i{display:block;width:96px;height:22px;background:var(--frame);border-radius:0 0 14px 14px}
+.hint{position:sticky;bottom:12px;margin:-46px auto 0;width:max-content;max-width:90%;background:rgba(27,42,92,.88);color:#fff;font-size:12px;padding:7px 12px;border-radius:999px;pointer-events:none}
+.ctrl{display:flex;gap:10px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--fg);font:600 14px var(--body);padding:10px 16px;border-radius:10px;cursor:pointer}
+.btn.pri{background:var(--saffron);border-color:var(--saffron);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:focus-visible,.flow:focus-visible,.dot:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.dot{width:9px;height:9px;border-radius:50%;border:0;background:var(--line);cursor:pointer;padding:0}
+.dot.on{background:var(--saffron);width:22px;border-radius:5px}
+.step-no{font-size:12px;color:var(--saffron);font-weight:600;font-variant-numeric:tabular-nums}
+.notes h3{font-family:var(--display);font-size:22px;margin:4px 0 6px;color:var(--navy);text-wrap:balance}
+.notes p{font-size:14px;line-height:1.6;color:var(--fg);margin:0 0 12px}
+.notes ul{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:var(--muted)}
+.next{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.next b{color:var(--fg)}
+@media (max-width:980px){.wrap{grid-template-columns:1fr}.rail{display:flex;gap:6px;overflow-x:auto;padding:8px}.rail h2{display:none}.flow{flex:0 0 auto;width:auto}.flow small{display:none}.stage{order:-1}}
+@media (prefers-reduced-motion:no-preference){.screen img{animation:in .25s ease}@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1}}}
+</style>
+
+<header>
+  <h1>Tirth <span>Now</span> · App Flow</h1>
+  <div class="tag">Clickable walkthrough · tap the phone or use → to continue</div>
+</header>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const {useState,useEffect,useRef}=React; const html=htm.bind(React.createElement);
+const S={
+ '1':['Splash & Language','Yatri opens the app, sees the Tirth Now brand, and picks a language. Hindi is selected by default.',['6 languages: हिंदी, English, ગુજરાતી, বাংলা, मराठी, தமிழ்','Choice is remembered on the next launch']],
+ '2':['Home Dashboard','One home for everything. Live darshan of Shri Banke Bihari ji leads, with 12 service tiles below.',['Auto-detects location (Vrindavan, Mathura)','Search: “कहाँ जाना है ?”','Bottom nav: Home, Darshan, Reels, Yatra, Profile']],
+ '3':['Temple Discovery','Find temples by city with distance, ratings and reviews.',['Filters: वृंदावन, मथुरा, अयोध्या, काशी','Opens temple detail with timings, aarti and directions']],
+ '4':['Yatra Packages','Ready-made packages with hotel, transport, darshan and meals included.',['Braj Experience 1N/2D from ₹1,999/person','Pick date and travellers, then pay']],
+ '5':['Puja Seva','Book a puja in the devotee’s name. Proof video is shared after the seva.',['From ₹101 (Tulsi mala) to ₹501 (Vishesh puja)','Earns +50 Tirth Coins']],
+ '6':['Hotels & Dharamshala','Stays near the temples, filtered by budget.',['Budget, mid-range and luxury','Check-in dates, guests and rooms at booking']],
+ '7':['Transport','Book a cab, tempo traveller or bus for the full yatra.',['Sedan ₹1,500/day to Luxury Bus ₹4,500/day','Pickup point, days and passengers']],
+ '19':['Trip Insurance','Optional cover added to any booking at checkout.',['From ₹49','Medical, cancellation, lost baggage, 24x7 help']],
+ '20':['My Bookings','Every yatra, hotel, food, transport and puja booking in one place.',['Live status and invoice','Cancel or rebook']],
+ '8':['Ghar ka Khana','Home-cooked satvik food delivered to pilgrims.',['Thalis from ₹120','Daily tiffin plans for yatris']],
+ '11a':['Food List','Browse thalis with prep time and rating.',['Satvik, Rajasthani, Diet and Kids thali','Tap a dish to see details']],
+ '11b':['Dish Detail','What’s in the thali, quality badges and quantity.',['Satvik · No onion garlic · Fresh · Hygienic','Add to cart']],
+ '11c':['Delivery & Payment','Choose delivery, pickup or schedule, then pay.',['UPI, card, net banking or Tirth Coins','Live order tracking after payment']],
+ '9':['Restaurants','Pure-veg restaurants near the temple.',['Satvik and Jain options marked','Sorted by distance']],
+ '12a':['Restaurant Directory','Search restaurants by dish or place.',['Filters: शुद्ध शाकाहारी, जैन, लोकल']],
+ '12b':['Restaurant Detail','Menu, reviews and photos, plus table booking.',['Braj Rasoi · 0.5 km from Prem Mandir','Book a table or order']],
+ '12c':['Menu & Order','Add dishes and check out from a sticky cart bar.',['Running item count and total','Same checkout as Ghar ka Khana']],
+ '13':['Tirth Coins','Reward coins on every booking, usable as money at checkout.',['10 coins = ₹1','Referral +100, Yatra up to +400']],
+ '10':['Tirth Passport','A digital pilgrimage passport that stamps every tirth visited.',['GPS check-in at temples','Badges like “Braj Explorer”']],
+ '18':['Family Account','Plan and track the yatra together as a family.',['Up to 6 members','Shared tirth count']],
+ '15':['Bhakti Reels','Devotional short videos from the community.',['Like, share and upload reels']],
+ '16':['AI Tirth Saathi','A chat assistant for planning the yatra in the yatri’s language.',['Trip plans, temple info, hotel suggestions','Hindi and English']],
+ '17':['Festival Calendar','Upcoming festivals with reminders.',['Janmashtami, Holi, Ram Navami, Mahashivratri','Push reminder before the date']],
+ '14':['Help & Emergency','Safety for pilgrims in crowded places.',['SOS 112 with live location to family','Lost & found, medical and 24x7 support']],
+};
+const FLOWS=[
+ {n:'Onboarding',d:'First launch to home',s:['1','2']},
+ {n:'Darshan & Yatra',d:'Temples, packages, puja',s:['2','3','4','5','20']},
+ {n:'Stay & Travel',d:'Hotel, cab, insurance',s:['6','7','19','20']},
+ {n:'Ghar ka Khana',d:'Order home food',s:['8','11a','11b','11c']},
+ {n:'Restaurants',d:'Find, book, order',s:['9','12a','12b','12c']},
+ {n:'Rewards',d:'Coins, passport, family',s:['13','10','18']},
+ {n:'Community & Safety',d:'Reels, AI, festivals, SOS',s:['15','16','17','14']},
+];
+function App(){
+ const [f,setF]=useState(0),[i,setI]=useState(0); const sc=useRef(null);
+ const fl=FLOWS[f], id=fl.s[i], d=S[id], last=i===fl.s.length-1;
+ useEffect(()=>{sc.current&&(sc.current.scrollTop=0)},[f,i]);
+ const next=()=>{ if(!last) setI(i+1); else if(f<FLOWS.length-1){setF(f+1);setI(0)} };
+ const prev=()=>{ if(i>0) setI(i-1); else if(f>0){setF(f-1);setI(FLOWS[f-1].s.length-1)} };
+ useEffect(()=>{const k=e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev()};addEventListener('keydown',k);return()=>removeEventListener('keydown',k)});
+ const nx=!last?S[fl.s[i+1]][0]:(FLOWS[f+1]?FLOWS[f+1].n+' flow':null);
+ return html`<div class="wrap">
+  <nav class="rail"><h2>User flows</h2>
+   ${FLOWS.map((x,k)=>html`<button key=${k} class=${'flow'+(k===f?' on':'')} onClick=${()=>{setF(k);setI(0)}}><b>${x.n}</b><small>${x.d} · ${x.s.length} screens</small></button>`)}
+  </nav>
+  <main class="stage">
+   <div class="phone"><div class="screen" ref=${sc} onClick=${next} title="Tap to continue">
+     <div class="notch"><i></i></div>
+     <img key=${id} src=${'s/'+id+'.jpg'} alt=${d[0]} />
+     <div class="hint">Scroll to see more · tap to continue</div>
+   </div></div>
+   <div class="ctrl">
+    <button class="btn" onClick=${prev} disabled=${f===0&&i===0}>← Back</button>
+    <div class="dots">${fl.s.map((x,k)=>html`<button key=${k} class=${'dot'+(k===i?' on':'')} aria-label=${S[x][0]} onClick=${()=>setI(k)}></button>`)}</div>
+    <button class="btn pri" onClick=${next} disabled=${!nx}>Next →</button>
+   </div>
+  </main>
+  <aside class="notes"><h2>${fl.n}</h2>
+   <div class="step-no">Step ${i+1} of ${fl.s.length}</div>
+   <h3>${d[0]}</h3><p>${d[1]}</p>
+   <ul>${d[2].map((t,k)=>html`<li key=${k}>${t}</li>`)}</ul>
+   ${nx&&html`<div class="next">Next: <b>${nx}</b></div>`}
+  </aside></div>`;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App}/>`);
+</script>
+
+</body></html>
